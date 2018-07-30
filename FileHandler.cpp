@@ -7,6 +7,7 @@
 //
 
 #include "FileHandler.hpp"
+#include "printdata.hpp"
 #include <iostream>
 
 FileHandler::FileHandler()
@@ -20,9 +21,14 @@ FileHandler::~FileHandler()
         ifFile.close();
 }
 
-void FileHandler::initName(const uint8_t * name)
+bool FileHandler::initName(const uint8_t * name)
 {
-    ifFile.open((char*)name,std::ios::binary); //init file handler & open file as a binary
+    ifFile.open((char*)name,std::ifstream::binary | std::ios::ate); //init file handler & open file as a binary & ate for get file size
+    file_size=ifFile.tellg();
+    ifFile.seekg(ifFile.beg);    //pointer move to begin
+    cout<<"File size : "<<file_size<<endl;
+    
+    return ifFile.is_open();
 }
 
 uint8_t* FileHandler::getReadBuf()
@@ -30,12 +36,17 @@ uint8_t* FileHandler::getReadBuf()
     return readbuf;
 }
 
-bool FileHandler::readLines()
+uint64_t FileHandler::getFileSize()
 {
-
-    ifFile.getline((char*)readbuf, BUFSIZ); //read one line from file
-
-
-    return !ifFile.eof(); // return true if not eof 
-        
+    return file_size;
+}
+bool FileHandler::readFromFile()
+{
+    if(ifFile)
+        ifFile.read((char*)readbuf, BUFSIZ); //read one line from file
+    else
+        return false;
+    
+    return true;
+  
 }

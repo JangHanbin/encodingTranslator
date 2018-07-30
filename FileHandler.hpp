@@ -13,16 +13,19 @@
 
 
 class FileHandler{
-    uint8_t readbuf[BUFSIZ]; //BUFSIZ is 1024 and define in stdio
+    uint8_t readbuf[BUFSIZ];
+    uint64_t file_size=0;
     std::ifstream ifFile;
+    
     
 public:
     FileHandler();
     ~FileHandler();
-    void initName(const uint8_t* name);
+    bool initName(const uint8_t* name);
     uint8_t* getReadBuf();
     std::ifstream getIfFile();
-    bool readLines();
+    bool readFromFile();
+    uint64_t getFileSize();
     
 };
 

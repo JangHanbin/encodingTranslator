@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <vector>
 #include "FileHandler.hpp"
 #include "printdata.hpp"
 
@@ -37,14 +38,17 @@ int main(int argc, const char * argv[]) {
     const uint8_t* file = (uint8_t*)argv[1];
     
     FileHandler fHandler;
-    fHandler.initName(file);
-    
-    while(fHandler.readLines())
+    if(!fHandler.initName(file))
     {
-        printByHexData(fHandler.getReadBuf(), BUFSIZ);
-        memset(fHandler.getReadBuf(), 0xff, BUFSIZ);
-        sleep(0.1);
+        cout<<"File Open error! check file path or is exist"<<endl;
     }
     
+    
+    while(fHandler.readFromFile())
+    {
+        printByHexData(fHandler.getReadBuf(), BUFSIZ);
+
+    }
+
     return 0;
 }
