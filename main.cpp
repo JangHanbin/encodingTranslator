@@ -56,13 +56,18 @@ int main(int argc, const char * argv[]) {
     uint64_t location=0;
     //swapBIt for check endian
     uint16_t swpBit;
-    
+    int encode;
+    int preEncode=0;
     while(fHandler.readFromFile())
     {
         while (location < BUFSIZ)
         {
+            encode =isUTF(fHandler.getReadBuf()+location,preEncode);
+            if(encode) //if there is encode set
+                preEncode = encode;
             
-            switch (isUTF(fHandler.getReadBuf()+location)) {
+            //check situaltion
+            switch (encode) {
                 case UTF_16BIT:
                     swpBit = *((uint16_t*)(fHandler.getReadBuf()+location));
                     cout<<UTF8FromUTF16(swpBit);
@@ -78,12 +83,17 @@ int main(int argc, const char * argv[]) {
                     break;
                 case UNICODE_KOREAN:
                     cout<<UTF8FromUTF16(*((uint16_t*)(fHandler.getReadBuf()+location)));
+//                    printWord(fHandler.getReadBuf()+location, 2);
+//                    cout<<
                     location+=2;
                     break;
                 default:
                     //Do Swap endian parsing
                     swpBit=ltob16(*((uint16_t*)(fHandler.getReadBuf()+location)));
-                    switch (isUTF((uint8_t*)&swpBit)) {
+                    encode =isUTF((uint8_t*)&swpBit, preEncode);
+                    if(encode) //if there is encode set
+                        preEncode = encode;
+                    switch (encode) {
                         case UTF_16BIT:
                             cout<<UTF8FromUTF16(swpBit);
                             location+=2;
@@ -104,6 +114,7 @@ int main(int argc, const char * argv[]) {
                         default:
                             if(isASCII(*(fHandler.getReadBuf()+location)))
                             {
+                                preEncode = UTF_ASCII;
                                 //if ASCII, ASCII must be check later because UTF8, 16 contain ASCII Range
                                 printWord(fHandler.getReadBuf()+location, 1);
                                 location++;

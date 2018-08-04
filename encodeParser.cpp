@@ -43,29 +43,41 @@ std::string UTF8FromUTF16(uint16_t num)
     return convert.to_bytes(num);
 }
 
-int isUTF(uint8_t* c)
+//std::string UTF8FromECUKR(uint16_t num)
+//{
+//    std::wstring_convert<codecvt_u convert;
+//    return convert.to_bytes(num);
+//}
+int isUTF(uint8_t* c, int preEncode)
 {
     //need to swap endian
+    
+    // if I use else if there is occured an error.
+    // cuz can't not check other situaion
     uint16_t str = *((uint16_t*)c);
 
     if((c[0]==0)&&isASCII(c[1]))
     {
-//        cout<<"UTF_16ASCII"<<endl;
         return UTF_16ASCII;
     }
-    else if(((c[0]&UTF_24MASK)==UTF_24BIT)&&((c[1]&UTF_SUB)==UTF_SUB)&&((c[2]&UTF_SUB)==UTF_SUB)) //if UTF8 and use 24 bit
+    else if((((c[0]&UTF_24MASK)==UTF_24BIT)&&((c[1]&UTF_SUBMASK)==UTF_SUB)&&((c[2]&UTF_SUBMASK)==UTF_SUB)) && (0xAC00<=str && str<=0xD7AF))
     {
-//        cout<<"UTF_24BIT"<<endl;
+        //if ture at both of them. return preEncode System.
+        //if thre is preEncode set
+        if(preEncode==UTF_24BIT||preEncode==UNICODE_KOREAN)
+            return preEncode;
+    }
+    
+    if(((c[0]&UTF_24MASK)==UTF_24BIT)&&((c[1]&UTF_SUBMASK)==UTF_SUB)&&((c[2]&UTF_SUBMASK)==UTF_SUB)) //if UTF8 and use 24 bit
+    {
         return UTF_24BIT;
     }
-    else if(((c[0]&UTF_16MASK)==UTF_16BIT)&&((c[1]&UTF_SUB )==UTF_SUB)&&!(0xAC00<=str && str<=0xD7AF)) //if UTF8 and use 16 bit
+    if(((c[0]&UTF_16MASK)==UTF_16BIT)&&((c[1]&UTF_SUBMASK)==UTF_SUB)&&!(0xAC00<=str && str<=0xD7AF)) //if UTF8 and use 16 bit
     {
-//        cout<<"UTF_16BIT"<<endl;
         return UTF_16BIT;
     }
     else if((0xAC00<=str && str<=0xD7AF)) // if Korean lange
     {
-//        cout<<"UTF_UNICODE : "<<hex<<str<<endl;
         return UNICODE_KOREAN;
     }
     
