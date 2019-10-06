@@ -8,7 +8,7 @@
 
 #include "FileHandler.hpp"
 #include "printdata.hpp"
-#include <iostream>
+#include <fstream>
 
 FileHandler::FileHandler()
 {
@@ -23,7 +23,7 @@ FileHandler::~FileHandler()
 
 bool FileHandler::initName(const uint8_t * name)
 {
-    ifFile.open((char*)name,std::ifstream::binary | std::ios::ate); //init file handler & open file as a binary & ate for get file size
+    ifFile.open((char*)name,std::ifstream::binary || std::ios::ate); //init file handler & open file as a binary & ate for get file size
     file_size=ifFile.tellg();
     ifFile.seekg(ifFile.beg);    //pointer move to begin
     cout<<"File size : "<<file_size<<endl;
